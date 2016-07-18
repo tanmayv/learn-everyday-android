@@ -1,0 +1,87 @@
+{
+  "project_info": {
+    "project_number": "929872081530",
+    "project_id": "facts-learn-everyday"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929872081530:android:4ee25052b9c3f08d",
+        "android_client_info": {
+          "package_name": "com.tanmayvijayvargiya.facts.everyday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929872081530-tv969vun8b02292mhpn3bjh4srqhscts.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tanmayvijayvargiya.facts.everyday",
+            "certificate_hash": "2272AA828695BEA25C42D3C9C7C13DA10CF6C9D4"
+          }
+        },
+        {
+          "client_id": "929872081530-p82kvklpf2hmsur2tv7ria9sl9d387m3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwlQJkam3y4mHM8c__gU4dyA3_3y6L7NM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929872081530:android:e2bfdb3c6c2a0fe0",
+        "android_client_info": {
+          "package_name": "com.tanmayvijayvargiya.factseveryday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929872081530-8oipeq8j385tccpsn16qe0el9oh90o3b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tanmayvijayvargiya.factseveryday",
+            "certificate_hash": "2272AA828695BEA25C42D3C9C7C13DA10CF6C9D4"
+          }
+        },
+        {
+          "client_id": "929872081530-p82kvklpf2hmsur2tv7ria9sl9d387m3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwlQJkam3y4mHM8c__gU4dyA3_3y6L7NM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
