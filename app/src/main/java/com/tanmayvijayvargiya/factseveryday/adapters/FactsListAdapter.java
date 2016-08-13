@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,7 +63,7 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleText, usernameText, timestampText, factContentText;
         CircleImageView profilePic;
-        AppCompatImageView bannerImage, favImage;
+        AppCompatImageView bannerImage, favImage, shareImage;
 
         private int bannerWidth;
 
@@ -77,6 +76,8 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
             factContentText = (TextView) itemView.findViewById(R.id.fact_content_text);
             bannerImage = (AppCompatImageView) itemView.findViewById(R.id.bannerImage);
             favImage = (AppCompatImageView) itemView.findViewById(R.id.favButton);
+            shareImage = (AppCompatImageView) itemView.findViewById(R.id.shareButton);
+
         }
 
         public void preBind(final Fact fact, final FactItemListener listener){
@@ -148,7 +149,7 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
 
             profilePic.setImageBitmap(letterTile);
             if(fact.getContent() != null)
-                factContentText.setText(Html.fromHtml(fact.getContent()));
+                factContentText.setText(fact.getContent());
 
             if(fact.isFavorite){
                 favImage.setImageResource(R.drawable.heartred);
@@ -158,7 +159,9 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
                 @Override
                 public void onClick(View v) {
                     v.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                    fact.isFavorite = !fact.isFavorite;
                     listener.favButtonClick(fact);
+                    notifyDataSetChanged();
                 }
             });
 
@@ -172,6 +175,13 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
                     Log.d("Shit", "Unable to parse " + fact.getCreatedAt());
                 }
             }
+            shareImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.shareButtonClick(fact);
+                }
+            });
+
         }
     }
 
@@ -182,5 +192,6 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
 
     public interface FactItemListener{
         public void favButtonClick(Fact fact);
+        public void shareButtonClick(Fact fact);
     }
 }

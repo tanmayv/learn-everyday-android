@@ -4,14 +4,18 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <permission android:name="com.tanmayvijayvargiya.factseveryday.permission.C2D_MESSAGE"
+    <permission
+        android:name="com.tanmayvijayvargiya.factseveryday.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+
     <uses-permission android:name="com.tanmayvijayvargiya.factseveryday.permission.C2D_MESSAGE" />
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
@@ -24,12 +28,14 @@
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.tanmayvijayvargiya.factseveryday" />
             </intent-filter>
         </receiver>
+
         <service
             android:name=".gcm.MyGcmPushReceiver"
             android:exported="false">
@@ -37,7 +43,6 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-
         <service
             android:name=".gcm.GcmIntentService"
             android:exported="false">
@@ -45,6 +50,7 @@
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
+
         <activity android:name=".views.LoginActivity" />
         <activity
             android:name=".views.ActivityHome"
@@ -59,7 +65,8 @@
         <activity
             android:name=".views.FactEditActivity"
             android:label="@string/title_activity_fact_edit"
-            android:theme="@style/MyMaterialTheme.NoActionBar"></activity>
+            android:theme="@style/MyMaterialTheme.NoActionBar" />
+        <activity android:name=".views.SearchActivity"></activity>
     </application>
 
 </manifest>

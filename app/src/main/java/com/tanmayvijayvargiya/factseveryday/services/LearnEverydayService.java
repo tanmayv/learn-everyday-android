@@ -18,7 +18,7 @@ import rx.Observable;
  */
 public class LearnEverydayService {
 
-    private static final String SERVER_URL = "http://52.77.253.72:8080/api";
+    private static final String SERVER_URL = "http://52.66.112.184:8080/api";
     private Api mApi;
     private static LearnEverydayService instance;
 
@@ -44,6 +44,8 @@ public class LearnEverydayService {
 
         @GET("/facts")
         public Observable<List<Fact>> getFacts();
+        @GET("/facts/after/{timestampFrom}")
+        public Observable<List<Fact>> getFactsBetweenTimestamp(@Path("timestampFrom") String timestampFrom);
 
         @POST("/facts")
         public Observable<Fact> createFact(@Body Fact fact);

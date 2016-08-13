@@ -25,7 +25,7 @@ public class UserSingleton {
     private User user;
     private UserSingleton(Context context){
         String userId = SharedPreferencesManager.getLoggedInUserId(context);
-        if(userId != null){
+        if(userId != null) {
             LearnEverydayService.getInstance().getApi().getUser(userId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<User>() {
@@ -45,9 +45,8 @@ public class UserSingleton {
                             user = u;
                         }
                     });
-        }else{
-            user = new User();
         }
+
     }
     public static synchronized UserSingleton getInstance(){
         return instance;

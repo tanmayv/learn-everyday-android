@@ -1,5 +1,6 @@
 package com.tanmayvijayvargiya.factseveryday.gcm;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -52,12 +53,12 @@ public class MyGcmPushReceiver extends GcmListenerService {
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
 
-        //Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-
         NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.heartred)
                             .setContentTitle(title + "- Fact : Learn Everyday")
+                            .setContentText(content)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setStyle(new NotificationCompat.BigTextStyle().bigText(content))
                             .setContentIntent(resultPendingIntent);
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -71,7 +72,9 @@ public class MyGcmPushReceiver extends GcmListenerService {
         NotificationManager mNotifyMgr =
                     (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 // Builds the notification and issues it.
-        mNotifyMgr.notify(notificationNo++, mBuilder.build());
+        Notification notification = mBuilder.build();
+        notification.contentView.setImageViewResource(android.R.id.icon, R.mipmap.ic_launcher);
+        mNotifyMgr.notify(notificationNo++, notification);
 
 
         int mNotificationId = 0;

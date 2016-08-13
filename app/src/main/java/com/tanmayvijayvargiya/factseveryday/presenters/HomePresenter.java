@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.tanmayvijayvargiya.factseveryday.LearnEverydayApplication;
 import com.tanmayvijayvargiya.factseveryday.gcm.GcmIntentService;
 import com.tanmayvijayvargiya.factseveryday.helper.Presenter;
 import com.tanmayvijayvargiya.factseveryday.models.Fact;
@@ -32,7 +33,7 @@ public class HomePresenter implements Presenter<ActivityHome>{
     private ActivityHome view;
     private String userId;
     private LearnEverydayService apiService;
-    private final int factsCacheLimit = 20;
+    private final int factsCacheLimit = 40;
     private List<Fact> factsCache;
     private List<Fact> favFactList;
     protected CompositeSubscription compositeSubscription = new CompositeSubscription();
@@ -46,6 +47,9 @@ public class HomePresenter implements Presenter<ActivityHome>{
 
     public void init(){
 
+        if(!((LearnEverydayApplication)view.getApplication()).isNetworkAvailable()){
+            view.noInternetConnection();
+        }
         String userId = SharedPreferencesManager.getLoggedInUserId(view);
         if(userId == null){
             view.navigateToLogin();
@@ -230,7 +234,7 @@ public class HomePresenter implements Presenter<ActivityHome>{
                         userFavs = new ArrayList<String>();
                     }
                     if (userFavs.contains(fact.get_id())) {
-                        Log.d("Shit", "removed from favt");
+                        Log.d("Shit", "removed from fact");
                         userFavs.remove(fact.get_id());
                         factsCache.get(factsCache.indexOf(fact)).isFavorite = false;
                         favFactList.remove(fact);
@@ -313,5 +317,34 @@ public class HomePresenter implements Presenter<ActivityHome>{
         }else{
             fetchAllFavFacts();
         }
+    }
+
+
+    public boolean appendFactsToHomeList() {
+        Fact lastFact = factsCache.get(factsCache.size() - 1);
+        LearnEverydayService.getInstance().getApi()
+                .getFactsBetweenTimestamp(lastFact.getCreatedAt())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Fact>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d("Shit", "Done loading older facts");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("Shit", e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(List<Fact> factList) {
+
+                        Log.d("Shit", "Number of facts fetched " + factList.size());
+                        processAndDisplayFacts(factList);
+                    }
+                });
+
+        return true;
     }
 }

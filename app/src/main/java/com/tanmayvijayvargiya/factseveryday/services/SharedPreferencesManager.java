@@ -14,6 +14,7 @@ public class SharedPreferencesManager {
     // properties
     private static final String LOGGED_IN_USERID = "LED_USER_LOGGED_IN";
     private static final String LOGGED_IN_USERNAME = "LED_USER_LOGGED_NAME";
+    private static final String CURRENT_VERSION_CODE = "CURRENT_VERSION_CODE";
     // other properties...
 
 
@@ -40,6 +41,16 @@ public class SharedPreferencesManager {
     public static void setLoggedInUserName(Context context, String newValue) {
         final SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(LOGGED_IN_USERNAME, newValue);
+        editor.commit();
+    }
+
+    public static int getCurrentVersionCode(Context context){
+        return getSharedPreferences(context).getInt(CURRENT_VERSION_CODE,0);
+    }
+
+    public static void setCurrentVersionCode(Context context, int versionCode){
+        final SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putInt(CURRENT_VERSION_CODE, versionCode);
         editor.commit();
     }
 

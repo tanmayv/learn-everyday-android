@@ -2,6 +2,7 @@ package com.tanmayvijayvargiya.factseveryday.views;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -58,6 +60,7 @@ public class ActivityHome extends AppCompatActivity
         setContentView(R.layout.activity_activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -112,7 +115,8 @@ public class ActivityHome extends AppCompatActivity
             public void success(User user) {
                 if(user != null) {
                     loggedUserEmail.setText(user.getEmailId());
-                    loggedUserName.setText(user.getName().fullName());
+                    if(user.getName() != null)
+                        loggedUserName.setText(user.getName().fullName());
                     Picasso.with(getApplicationContext()).load(user.getProfilePicUrl()).into(loggedProfilePic);
                 }
             }
@@ -207,6 +211,10 @@ public class ActivityHome extends AppCompatActivity
             return true;
         }
 
+        if(id == R.id.action_search){
+            startActivity(new Intent(this,SearchActivity.class));
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -264,6 +272,30 @@ public class ActivityHome extends AppCompatActivity
 
     }
 
+    @Override
+    public boolean endOfListReached(int mode) {
+        if(mode == ListOfFactsFragment.ALL_FACTS_MODE)
+            return mPresenter.appendFactsToHomeList();
+        else
+            return true;
+    }
+
+    @Override
+    public void shareButtonClicked(Fact fact, int currentMode) {
+        shareText(fact.getTitle(), fact.getContent());
+    }
+
+    private void shareText(String title, String content) {
+        String shareContent = "**Fact : " + title + "\n\n**";
+        shareContent = shareContent.concat(content.concat("\n\nShared via Facts - Learn Everyday"));
+
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(Intent.EXTRA_TITLE, title);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareContent);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+    }
+
     public void showAllFacts(List<Fact> factList){
         discoverFragment.setFactList(factList);
     }
@@ -299,5 +331,18 @@ public class ActivityHome extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader loader) {
         this.mPresenter = null;
+    }
+
+    public void noInternetConnection() {
+        new AlertDialog.Builder(this)
+                .setTitle("No Internet Connection")
+                .setMessage("Please Check Internet Connectivity.")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finishAffinity();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 }

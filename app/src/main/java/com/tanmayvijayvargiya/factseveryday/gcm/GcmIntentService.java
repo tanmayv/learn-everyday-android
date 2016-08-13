@@ -99,7 +99,7 @@ public class GcmIntentService extends IntentService {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        Log.d("Shit", "NOT Registered With Server " + error.getResponse().getStatus());
+                        Log.d("Shit", "NOT Registered With Server");
                     }
                 });
         Log.d("Shit", "Registerting : " + token);
