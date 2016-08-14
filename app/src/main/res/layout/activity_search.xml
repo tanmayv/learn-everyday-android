@@ -19,6 +19,7 @@
             android:layout_marginLeft="10dp"
             android:layout_height="match_parent"
             android:focusable="true"
+            android:singleLine="true"
             android:selectAllOnFocus="true"
             android:hint="Search ..."
             android:background="@color/colorPrimaryDark"

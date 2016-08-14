@@ -14,7 +14,7 @@ public class RestAdapterSingleton {
     private static RestAdapterSingleton ourInstance = new RestAdapterSingleton();
 
     private RestAdapter restAdapter;
-    private static final String SERVER_URL = "http://52.66.112.184:8080/api";
+    private static final String SERVER_URL = "http://52.66.112.184:8080/";
 
     public static RestAdapterSingleton getInstance() {
         return ourInstance;
