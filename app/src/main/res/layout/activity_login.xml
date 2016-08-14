@@ -1,23 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal|center_vertical"
-    android:orientation="vertical"
-    android:background="@color/colorPrimary"
+    android:background="@color/cardview_dark_background"
     tools:context=".views.LoginActivity">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/background_image_login"
+        android:scaleType="centerCrop"/>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign in with Google"
-        android:textColor="#ffffff"
-        android:textSize="32sp"
-        android:padding="16dp"/>
+        android:id="@+id/launcher_icon"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_above="@+id/sign_in_button"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="66dp">
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="120dp"
+            android:src="@mipmap/ic_launcher"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="Learn Everyday"
+            android:layout_centerHorizontal="true"
+            android:textColor="#ffffff"
+            android:textSize="32sp"
+            android:padding="16dp"/>
+    </LinearLayout>
+
+
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_button"
-        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="45dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome"
+            android:layout_centerHorizontal="true"
+            android:textColor="#ffffff"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Relax and enjoy reading new and interesting facts. You can start by signing in with your google account."
+            android:layout_centerHorizontal="true"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:paddingLeft="36dp"
+            android:paddingRight="36dp"
+            android:paddingBottom="36dp"
+
+            android:paddingTop="16dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -7,6 +7,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -16,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.squareup.picasso.Picasso;
 import com.tanmayvijayvargiya.factseveryday.R;
 import com.tanmayvijayvargiya.factseveryday.models.User;
 import com.tanmayvijayvargiya.factseveryday.presenters.LoginPresenter;
@@ -60,6 +62,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setScopes(gso.getScopeArray());
         signInButton.setOnClickListener(this);
+
+        ImageView bgImage = (ImageView) findViewById(R.id.background_image_login);
+        Picasso.with(this).load(R.drawable.comfy_dog).into(bgImage);
     }
 
     public void navigateToHome(User user){
