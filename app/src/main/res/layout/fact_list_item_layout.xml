@@ -14,7 +14,6 @@
         >
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/bannerImage"
-            android:transitionName="@string/banner_transition"
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:scaleType="centerCrop"
@@ -24,7 +23,6 @@
             app:riv_corner_radius_top_right="2dp" />
         <TextView
             android:id="@+id/title_text"
-            android:transitionName="@string/title_transition"
             android:layout_marginTop="@dimen/card_title_margin_top"
             android:layout_marginLeft="@dimen/card_content_side_margin"
             android:layout_marginRight="@dimen/card_content_side_margin"
@@ -120,7 +118,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:transitionName="@string/content_transition"
             android:id="@+id/showMoreText"
             android:text="SHOW MORE"
             android:layout_marginLeft="@dimen/card_content_side_margin"
