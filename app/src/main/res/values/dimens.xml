@@ -21,4 +21,6 @@
     <dimen name="custom_tab_layout_height">72dp</dimen>
     <dimen name="text_title_size">20sp</dimen>
     <dimen name="text_content_size">16sp</dimen>
+    <dimen name="card_content_side_margin">16dp</dimen>
+    <dimen name="card_title_margin_top">24dp</dimen>
 </resources>
