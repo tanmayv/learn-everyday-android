@@ -2,22 +2,17 @@ package com.tanmayvijayvargiya.factseveryday.views;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -27,24 +22,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.path.android.jobqueue.JobManager;
+import com.path.android.jobqueue.Params;
 import com.squareup.picasso.Picasso;
 import com.tanmayvijayvargiya.factseveryday.R;
 import com.tanmayvijayvargiya.factseveryday.adapters.ViewPagerAdapter;
 import com.tanmayvijayvargiya.factseveryday.app.Config;
-import com.tanmayvijayvargiya.factseveryday.helper.Presenter;
-import com.tanmayvijayvargiya.factseveryday.helper.PresenterFactory;
-import com.tanmayvijayvargiya.factseveryday.helper.PresenterLoader;
-import com.tanmayvijayvargiya.factseveryday.models.Fact;
-import com.tanmayvijayvargiya.factseveryday.presenters.HomePresenter;
+import com.tanmayvijayvargiya.factseveryday.job.FetchFactsJob;
+import com.tanmayvijayvargiya.factseveryday.model.UserModel;
 import com.tanmayvijayvargiya.factseveryday.services.SharedPreferencesManager;
+import com.tanmayvijayvargiya.factseveryday.vo.User;
 
-import java.util.List;
+import javax.inject.Inject;
 
-public class ActivityHome extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ListOfFactsFragment.OnFragmentInteractionListener ,
-        LoaderManager.LoaderCallbacks<Presenter>{
+public class ActivityHome extends BaseActivity
+        implements NavigationView.OnNavigationItemSelectedListener{
 
-    HomePresenter mPresenter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ListOfFactsFragment discoverFragment;
@@ -54,12 +47,20 @@ public class ActivityHome extends AppCompatActivity
     private final int LOADER_ID = 9000;
 
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+
+    @Inject
+    UserModel userModel;
+
+    @Inject
+    JobManager jobManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getComponent().inject(this);
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -84,7 +85,6 @@ public class ActivityHome extends AppCompatActivity
                 }
             }
         };
-        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -103,8 +103,24 @@ public class ActivityHome extends AppCompatActivity
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        setLoginDetails();
-        setupViewPager();
+//        setLoginDetails();
+//        setupViewPager();
+
+        User user = new User();
+        user.set_id("2");
+        user.setDbName("tanmay Vijay");
+        user.setEmailId("13tanmayvijay@gmail.com");
+        userModel.setLoggedInUser(user);
+
+        user = userModel.getLoggedInUser();
+        Log.d("db", "Logged In User " + user.getName().fullName());
+
+
+        jobManager.addJob(new FetchFactsJob(new Params(1).requireNetwork().persist()));
+    }
+
+    @Override
+    void cancelPendingJobsOnStop() {
 
     }
 
@@ -124,35 +140,18 @@ public class ActivityHome extends AppCompatActivity
                 @Override
                 public void onAllFactFragmentInstance(ListOfFactsFragment fragment) {
                     discoverFragment = fragment;
-                    mPresenter.allFactsFragmentReady();
                 }
 
                 @Override
                 public void onFavFactFragmentInstance(ListOfFactsFragment fragment) {
                     favFragment = fragment;
-                    mPresenter.favFactsFragmentReady();
                 }
             });
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
         }
     }
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d("lifecycle", "onRestart");
-        mPresenter.onViewAttached(this);
-    }
 
     @Override
     protected void onResume() {
@@ -161,7 +160,6 @@ public class ActivityHome extends AppCompatActivity
         // register GCM registration complete receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(Config.REGISTRATION_COMPLETE));
-        mPresenter.onViewAttached(this);
         Log.d("lifecycle", "onResume");
         // register new push message receiver
         // by doing this, the activity will be notified each time a new message arrives
@@ -171,7 +169,6 @@ public class ActivityHome extends AppCompatActivity
 
     @Override
     protected void onPause() {
-        mPresenter.onViewDetached();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
     }
@@ -204,7 +201,8 @@ public class ActivityHome extends AppCompatActivity
 
 
         if(id == R.id.action_search){
-            startActivity(new Intent(this,SearchActivity.class));
+            tabLayout.setVisibility(View.GONE);
+            //startActivity(new Intent(this,SearchActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -216,9 +214,8 @@ public class ActivityHome extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         if(id == R.id.nav_logout){
-            SharedPreferencesManager.setLoggedInUserid(this,null);
-            SharedPreferencesManager.setLoggedInUserName(this,null);
-            navigateToLogin();
+            SharedPreferencesManager.setLoggedInUserid(this, null);
+            SharedPreferencesManager.setLoggedInUserName(this, null);
             return true;
         }
         if(id == R.id.nav_rate_us){
@@ -236,122 +233,4 @@ public class ActivityHome extends AppCompatActivity
         return true;
     }
 
-
-    public void navigateToLogin(){
-        finish();
-        startActivity(new Intent(this, LoginActivity.class));
-
-    }
-
-
-    @Override
-    public void favButtonClicked(Fact fact, int mode) {
-        if(mode == ListOfFactsFragment.ALL_FACTS_MODE){
-            mPresenter.allFactsFavToggle(fact);
-        }
-        else{
-            mPresenter.allFactsFavToggle(fact);
-        }
-
-    }
-
-    @Override
-    public void refreshFactsList(int mode) {
-        if(mode == ListOfFactsFragment.ALL_FACTS_MODE){
-            mPresenter.refreshAllFacts();
-        }
-        else{
-            mPresenter.refreshAllFavFact();
-        }
-
-    }
-
-    @Override
-    public boolean endOfListReached(int mode) {
-        if(mode == ListOfFactsFragment.ALL_FACTS_MODE)
-            return mPresenter.appendFactsToHomeList();
-        else
-            return true;
-    }
-
-    @Override
-    public void shareButtonClicked(Fact fact, int currentMode) {
-        shareText(fact.getTitle(), fact.getContent());
-    }
-
-    @Override
-    public void navigateToFactViewActivity(Fact fact) {
-        if(fact.get_id() != null) {
-            Bundle factBundle = new Bundle();
-            factBundle.putString("factId", fact.get_id());
-            factBundle.putString("factTitle", fact.getTitle());
-            factBundle.putString("factContent", fact.getContent());
-
-            Intent i = new Intent(this,FactViewActivity.class);
-            i.putExtra("fact", factBundle);
-            startActivity(i);
-
-        }
-    }
-
-    private void shareText(String title, String content) {
-        String shareContent = "Fact : " + title + "\n\n";
-        shareContent = shareContent.concat(content.concat("\n\nShared via Facts - Learn Everyday"));
-
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(Intent.EXTRA_TITLE, title);
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareContent);
-        startActivity(Intent.createChooser(sharingIntent, "Share via"));
-    }
-
-    public void showAllFacts(List<Fact> factList){
-        discoverFragment.setFactList(factList);
-    }
-
-    public void showFavFacts(List<Fact> favFactList){
-        favFragment.setFactList(favFactList);
-    }
-
-    public void favFactDataChanged(){
-        favFragment.notifyDataSetChanged();
-    }
-
-    public void allFactsDataChanged() {
-        discoverFragment.notifyDataSetChanged();
-    }
-
-    @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-        return new PresenterLoader(this, new PresenterFactory() {
-            @Override
-            public Presenter create() {
-                return new HomePresenter();
-            }
-        });
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Presenter> loader, Presenter data) {
-        this.mPresenter = (HomePresenter) data;
-    }
-
-
-    @Override
-    public void onLoaderReset(Loader loader) {
-        this.mPresenter = null;
-    }
-
-    public void noInternetConnection() {
-        new AlertDialog.Builder(this)
-                .setTitle("No Internet Connection")
-                .setMessage("Please Check Internet Connectivity.")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        finishAffinity();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
 }

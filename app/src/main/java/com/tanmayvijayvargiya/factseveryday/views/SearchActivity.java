@@ -12,16 +12,12 @@ import android.widget.EditText;
 
 import com.tanmayvijayvargiya.factseveryday.R;
 import com.tanmayvijayvargiya.factseveryday.adapters.QueryResultAdapter;
-import com.tanmayvijayvargiya.factseveryday.models.Fact;
-import com.tanmayvijayvargiya.factseveryday.services.LearnEverydayService;
+import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observer;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class SearchActivity extends AppCompatActivity implements QueryResultAdapter.QueryItemListener{
 
@@ -52,36 +48,36 @@ public class SearchActivity extends AppCompatActivity implements QueryResultAdap
 //                        if(!querySub.isUnsubscribed())
 //                            querySub.unsubscribe();
                     }
-                    querySub = LearnEverydayService.getInstance().getApi()
-                            .queryFacts(s.toString())
-                            .subscribeOn(Schedulers.newThread())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Observer<List<Fact>>() {
-                                @Override
-                                public void onCompleted() {
-
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-
-                                }
-
-                                @Override
-                                public void onNext(List<Fact> factList) {
-                                    if(factList.size() < 1){
-                                        List<Fact> testFacts = new ArrayList<Fact>();
-                                        Fact fact = new Fact();
-                                        fact.setTitle("Nothing Found");
-                                        testFacts.add(fact);
-
-                                        mAdapter.setQueryResult(testFacts);
-                                    }else {
-                                        mAdapter.setQueryResult(factList);
-                                        mAdapter.notifyDataSetChanged();
-                                    }
-                                }
-                            });
+//                    querySub = LearnEverydayService.getInstance().getApi()
+//                            .queryFacts(s.toString())
+//                            .subscribeOn(Schedulers.newThread())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe(new Observer<List<Fact>>() {
+//                                @Override
+//                                public void onCompleted() {
+//
+//                                }
+//
+//                                @Override
+//                                public void onError(Throwable e) {
+//
+//                                }
+//
+//                                @Override
+//                                public void onNext(List<Fact> factList) {
+//                                    if(factList.size() < 1){
+//                                        List<Fact> testFacts = new ArrayList<Fact>();
+//                                        Fact fact = new Fact();
+//                                        fact.setTitle("Nothing Found");
+//                                        testFacts.add(fact);
+//
+//                                        mAdapter.setQueryResult(testFacts);
+//                                    }else {
+//                                        mAdapter.setQueryResult(factList);
+//                                        mAdapter.notifyDataSetChanged();
+//                                    }
+//                                }
+//                            });
                 }
             }
 

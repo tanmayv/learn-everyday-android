@@ -9,12 +9,10 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.tanmayvijayvargiya.factseveryday.R;
-import com.tanmayvijayvargiya.factseveryday.presenters.FactEditPresenter;
 
 
 public class FactEditActivity extends AppCompatActivity {
 
-    private FactEditPresenter mPresenter;
     private TextView factTitleText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +22,6 @@ public class FactEditActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         factTitleText = (TextView) findViewById(R.id.factTitleEditText);
-        mPresenter = new FactEditPresenter(this);
 
     }
 

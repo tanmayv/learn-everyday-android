@@ -19,22 +19,14 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.squareup.picasso.Picasso;
 import com.tanmayvijayvargiya.factseveryday.R;
-import com.tanmayvijayvargiya.factseveryday.models.User;
-import com.tanmayvijayvargiya.factseveryday.presenters.LoginPresenter;
-import com.tanmayvijayvargiya.factseveryday.services.LearnEverydayService;
 import com.tanmayvijayvargiya.factseveryday.services.SharedPreferencesManager;
-import com.tanmayvijayvargiya.factseveryday.singletons.UserSingleton;
-
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import com.tanmayvijayvargiya.factseveryday.vo.User;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
 
     EditText firstName, lastName, email, userId;
     AppCompatButton signup, login;
     private String mLoggedInUserId;
-    private LoginPresenter mPresenter;
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -119,33 +111,33 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
             SharedPreferencesManager.setLoggedInUserEmail(this, user.getEmailId());
             SharedPreferencesManager.setLoggedInUserName(this, user.getName().fullName());
-            SharedPreferencesManager.setLoggedInUserprofile(this,user.getProfilePicUrl());
-            LearnEverydayService.getInstance().getApi()
-                    .createUser(user)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<User>() {
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-
-                        }
-
-                        @Override
-                        public void onNext(User user) {
-                            SharedPreferencesManager.setLoggedInUserid(getApplicationContext(), user.get_id());
-                            SharedPreferencesManager.setLoggedInUserName(getApplicationContext(), user.getName().fullName());
-                            user.setProfilePicUrl(acct.getPhotoUrl().toString());
-                            UserSingleton.getInstance().setLoggedInUser(user);
-                            finish();
-                            startActivity(new Intent(getApplicationContext(), ActivityHome.class));
-
-                        }
-                    });
+            SharedPreferencesManager.setLoggedInUserprofile(this, user.getProfilePicUrl());
+//            LearnEverydayService.getInstance().getApi()
+//                    .createUser(user)
+//                    .subscribeOn(Schedulers.newThread())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(new Observer<User>() {
+//                        @Override
+//                        public void onCompleted() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onError(Throwable e) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onNext(User user) {
+//                            SharedPreferencesManager.setLoggedInUserid(getApplicationContext(), user.get_id());
+//                            SharedPreferencesManager.setLoggedInUserName(getApplicationContext(), user.getName().fullName());
+//                            user.setProfilePicUrl(acct.getPhotoUrl().toString());
+//                            UserSingleton.getInstance().setLoggedInUser(user);
+//                            finish();
+//                            startActivity(new Intent(getApplicationContext(), ActivityHome.class));
+//
+//                        }
+//                    });
 
         } else {
 

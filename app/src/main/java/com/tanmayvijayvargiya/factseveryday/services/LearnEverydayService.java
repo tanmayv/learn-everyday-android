@@ -1,8 +1,7 @@
 package com.tanmayvijayvargiya.factseveryday.services;
 
-import com.tanmayvijayvargiya.factseveryday.models.Fact;
-import com.tanmayvijayvargiya.factseveryday.models.User;
-import com.tanmayvijayvargiya.factseveryday.singletons.RestAdapterSingleton;
+import com.tanmayvijayvargiya.factseveryday.vo.Fact;
+import com.tanmayvijayvargiya.factseveryday.vo.User;
 
 import java.util.List;
 
@@ -17,60 +16,35 @@ import rx.Observable;
 /**
  * Created by tanmayvijayvargiya on 02/07/16.
  */
-public class LearnEverydayService {
+public interface LearnEverydayService {
 
-    private static final String SERVER_URL = "http://52.66.112.184:8080/";
-    private Api mApi;
-    private static LearnEverydayService instance;
+    @GET("/")
+    public Observable<List<Fact>> queryFacts(@Query("q") String queryString);
 
-    public static LearnEverydayService getInstance(){
-        if(instance == null){
-            instance = new LearnEverydayService();
-        }
-        return instance;
-    }
+    @GET("/api/facts")
+    public List<Fact> getFacts();
+    @GET("/api/facts/after/{timestampFrom}")
+    public List<Fact> getFactsBetweenTimestamp(@Path("timestampFrom") String timestampFrom);
 
-    private LearnEverydayService() {
+    @POST("/api/facts")
+    public Fact createFact(@Body Fact fact);
 
-        mApi = RestAdapterSingleton.getInstance().getRestAdapter().create(Api.class);
-    }
+    @GET("/api/facts/{factId}")
+    public Observable<Fact> getFact(@Path("factId") String factId);
 
+    @POST("/api/facts/{factId}")
+    public Observable<Fact> updateFact(@Path("factId") String factId, @Body Fact fact);
 
-    public  Api getApi() {
+    @POST("/api/users")
+    public Observable<User> createUser(@Body User user);
 
-        return mApi;
-    }
+    @POST("/api/users/{userId}")
+    public Observable<User> updateUser(@Path("userId") String userId, @Body User user);
 
-    public interface Api {
+    @GET("/api/users/{userId}")
+    public Observable<User> getUser(@Path("userId") String userId);
 
-        @GET("/")
-        public Observable<List<Fact>> queryFacts(@Query("q") String queryString);
+    @POST("/api/gcm/register/{regId}")
+    public void registerGcmClient(@Path("regId") String registrationId, Callback<String> callback);
 
-        @GET("/api/facts")
-        public Observable<List<Fact>> getFacts();
-        @GET("/api/facts/after/{timestampFrom}")
-        public Observable<List<Fact>> getFactsBetweenTimestamp(@Path("timestampFrom") String timestampFrom);
-
-        @POST("/api/facts")
-        public Observable<Fact> createFact(@Body Fact fact);
-
-        @GET("/api/facts/{factId}")
-        public Observable<Fact> getFact(@Path("factId") String factId);
-
-        @POST("/api/facts/{factId}")
-        public Observable<Fact> updateFact(@Path("factId") String factId, @Body Fact fact);
-
-        @POST("/api/users")
-        public Observable<User> createUser(@Body User user);
-
-        @POST("/api/users/{userId}")
-        public Observable<User> updateUser(@Path("userId") String userId, @Body User user);
-
-        @GET("/api/users/{userId}")
-        public Observable<User> getUser(@Path("userId") String userId);
-
-        @POST("/api/gcm/register/{regId}")
-        public void registerGcmClient(@Path("regId") String registrationId, Callback<String> callback);
-
-    }
 }

@@ -20,9 +20,8 @@ import android.widget.TextView;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
 import com.tanmayvijayvargiya.factseveryday.R;
-import com.tanmayvijayvargiya.factseveryday.models.Fact;
-import com.tanmayvijayvargiya.factseveryday.services.LearnEverydayService;
 import com.tanmayvijayvargiya.factseveryday.services.LetterTileProvider;
+import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,9 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by tanmayvijayvargiya on 03/07/16.
@@ -94,17 +90,17 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
 
         public void preBind(final Fact fact, final FactItemListener listener){
             if(fact.getTitle() == null && fact.get_id() != null){
-                LearnEverydayService.getInstance().getApi()
-                        .getFact(fact.get_id())
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Action1<Fact>() {
-                            @Override
-                            public void call(Fact f) {
-                                f.isFavorite = fact.isFavorite;
-                                bind(f,listener);
-                            }
-                        });
+//                LearnEverydayService.getInstance().getApi()
+//                        .getFact(fact.get_id())
+//                        .subscribeOn(Schedulers.newThread())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .subscribe(new Action1<Fact>() {
+//                            @Override
+//                            public void call(Fact f) {
+//                                f.isFavorite = fact.isFavorite;
+//                                bind(f,listener);
+//                            }
+//                        });
             }
             else
                 bind(fact,listener);

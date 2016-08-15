@@ -16,18 +16,14 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 import com.tanmayvijayvargiya.factseveryday.R;
-import com.tanmayvijayvargiya.factseveryday.models.Fact;
-import com.tanmayvijayvargiya.factseveryday.services.LearnEverydayService;
 import com.tanmayvijayvargiya.factseveryday.services.LetterTileProvider;
+import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class FactViewActivity extends AppCompatActivity {
 
@@ -103,26 +99,26 @@ public class FactViewActivity extends AppCompatActivity {
             mFact.setTitle(factBundle.getString("factTitle"));
             mFact.setContent(factBundle.getString("factContent"));
             bind(mFact);
-            LearnEverydayService.getInstance().getApi()
-                    .getFact(factId)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<Fact>() {
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-
-                        }
-
-                        @Override
-                        public void onNext(Fact fact) {
-                            bind(fact);
-                        }
-                    });
+//            LearnEverydayService.getInstance().getApi()
+//                    .getFact(factId)
+//                    .subscribeOn(Schedulers.newThread())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(new Observer<Fact>() {
+//                        @Override
+//                        public void onCompleted() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onError(Throwable e) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onNext(Fact fact) {
+//                            bind(fact);
+//                        }
+//                    });
         }else
             navigateToHome();
     }

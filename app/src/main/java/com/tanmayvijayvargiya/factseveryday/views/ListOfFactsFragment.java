@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.tanmayvijayvargiya.factseveryday.R;
 import com.tanmayvijayvargiya.factseveryday.adapters.FactsListAdapter;
-import com.tanmayvijayvargiya.factseveryday.models.Fact;
+import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 
 import java.util.List;
 
