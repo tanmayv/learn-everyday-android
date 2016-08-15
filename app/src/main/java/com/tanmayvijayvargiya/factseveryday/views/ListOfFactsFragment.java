@@ -126,7 +126,7 @@ public class ListOfFactsFragment extends Fragment implements FactsListAdapter.Fa
                             previousTotal = totalItemCount;
                         }
                     }
-                    Log.d("Equation","VisibleItemCount " + visibleItemCount + " totalItemCount " + totalItemCount +" First VIsible item " + firstVisibleItem);
+                    Log.d("Equation", "VisibleItemCount " + visibleItemCount + " totalItemCount " + totalItemCount + " First VIsible item " + firstVisibleItem);
                     if (!factSwipeRefreshView.isRefreshing() && (totalItemCount - visibleItemCount)
                             <= (firstVisibleItem + visibleThreshold)) {
                         // End has been reached
@@ -197,6 +197,11 @@ public class ListOfFactsFragment extends Fragment implements FactsListAdapter.Fa
     @Override
     public void shareButtonClick(Fact fact) {
         mListener.shareButtonClicked(fact, currentMode);
+    }
+
+    @Override
+    public void navigateToFactViewActivity(Fact fact) {
+
     }
 
     public interface OnFragmentInteractionListener {
