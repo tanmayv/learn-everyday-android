@@ -1,18 +1,24 @@
 package com.tanmayvijayvargiya.factseveryday.adapters;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 import com.tanmayvijayvargiya.factseveryday.R;
 import com.tanmayvijayvargiya.factseveryday.models.Fact;
 import com.tanmayvijayvargiya.factseveryday.services.LearnEverydayService;
@@ -37,6 +43,8 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
     private FactItemListener mListener;
     private List<Fact> factList;
     private Context context;
+    int lastPosition = -1;
+    private boolean expandingTextAnimating = false;
 
     public FactsListAdapter(Context context, FactItemListener listener){
         this.mListener = listener;
@@ -53,6 +61,7 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.preBind(factList.get(position), mListener);
+        setAnimation(holder.itemView, position);
     }
 
     @Override
@@ -61,9 +70,10 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleText, usernameText, timestampText, factContentText;
+        TextView titleText, usernameText, timestampText, factContentText, showMoreText;
         CircleImageView profilePic;
-        AppCompatImageView bannerImage, favImage, shareImage;
+        AppCompatImageView  favImage, shareImage;
+        RoundedImageView bannerImage;
 
         private int bannerWidth;
 
@@ -72,11 +82,13 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
             titleText  = (TextView) itemView.findViewById(R.id.title_text);
             usernameText = (TextView) itemView.findViewById(R.id.username_text);
             timestampText = (TextView) itemView.findViewById(R.id.timestamp_text);
+            showMoreText = (TextView)itemView.findViewById(R.id.showMoreText);
             profilePic = (CircleImageView) itemView.findViewById(R.id.profile_pic);
             factContentText = (TextView) itemView.findViewById(R.id.fact_content_text);
-            bannerImage = (AppCompatImageView) itemView.findViewById(R.id.bannerImage);
+            bannerImage = (RoundedImageView) itemView.findViewById(R.id.bannerImage);
             favImage = (AppCompatImageView) itemView.findViewById(R.id.favButton);
             shareImage = (AppCompatImageView) itemView.findViewById(R.id.shareButton);
+            showMoreText.setText("SHOW MORE");
 
         }
 
@@ -100,33 +112,19 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
 
         public void bind(final Fact fact, final FactItemListener listener){
             titleText.setText(fact.getTitle());
+            titleText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                    mListener.navigateToFactViewActivity( fact);
+
+                }
+            });
             if(fact.getBannerUrl() != null && fact.getBannerUrl() != ""){
-                Transformation transformation = new Transformation() {
-
-                    @Override
-                    public Bitmap transform(Bitmap source) {
-                        if(bannerWidth == 0){
-                            bannerWidth = itemView.getWidth();
-                        }
-                        int targetWidth = 720;
-                                Log.d("Shit", "Width " + targetWidth);
-                        double aspectRatio = (double) source.getHeight() / (double) source.getWidth();
-                        int targetHeight = (int) (targetWidth * aspectRatio);
-                        Bitmap result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
-                        if (result != source) {
-                            // Same bitmap is returned if sizes are the same
-                            source.recycle();
-                        }
-                        return result;
-                    }
-
-                    @Override
-                    public String key() {
-                        return "transformation" + " desiredWidth";
-                    }
-                };
-
-                Picasso.with(context).load(fact.getBannerUrl()).transform(transformation).into(bannerImage);
+                Picasso.with(context)
+                        .load(fact.getBannerUrl())
+                        .resize(dp2px(220), 0)
+                        .into(bannerImage);
             }
             else
                 bannerImage.setImageDrawable(null);
@@ -165,6 +163,14 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
                 }
             });
 
+            showMoreText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleShowMoreLess();
+                    v.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                }
+            });
+
             if(fact.getCreatedAt() != null){
                 try{
                     DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -183,6 +189,34 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
             });
 
         }
+
+        private void toggleShowMoreLess() {
+            Log.d("ANIM", showMoreText.getText().toString());
+            if(showMoreText.getText().toString().equals("SHOW MORE")){
+                Log.d("ANIM", "ANIMATING");
+
+                ObjectAnimator animation = ObjectAnimator.ofInt(
+                        factContentText,
+                        "maxLines",
+                        50);
+                animation.setDuration(300);
+                animation.start();
+                animation.start();
+
+                showMoreText.setText("SHOW LESS");
+
+            }else{
+                Log.d("ANIM", "ANIMATING LESS");
+                ObjectAnimator animation = ObjectAnimator.ofInt(
+                        factContentText,
+                        "maxLines",
+                        5);
+                animation.setDuration(500);
+                animation.start();
+                showMoreText.setText("SHOW MORE");
+
+            }
+        }
     }
 
     public void setFactList(List<Fact> list){
@@ -190,8 +224,30 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
         notifyDataSetChanged();
     }
 
-    public interface FactItemListener{
+    public interface FactItemListener {
         public void favButtonClick(Fact fact);
         public void shareButtonClick(Fact fact);
+
+        void navigateToFactViewActivity(Fact fact);
+    }
+
+    public int dp2px(int dp) {
+        WindowManager wm = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        display.getMetrics(displaymetrics);
+        return (int) (dp * displaymetrics.density + 0.5f);
+    }
+    private void setAnimation(View viewToAnimate, int position)
+    {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition && (position == 0 || position == 1))
+        {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.push_left_in);
+
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 }
