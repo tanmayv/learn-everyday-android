@@ -60,7 +60,6 @@ public class HomePresenter implements Presenter<ActivityHome>{
         if (checkPlayServices()) {
             registerGCM();
         }
-
     }
 
     public void refreshAllFacts(){
@@ -86,8 +85,7 @@ public class HomePresenter implements Presenter<ActivityHome>{
 
                            Subscription sub = LearnEverydayService.getInstance().getApi()
                                    .getFact(factId)
-                                   .subscribeOn(Schedulers.newThread())
-                                   .observeOn(AndroidSchedulers.mainThread())
+
                                    .doOnError(new Action1<Throwable>() {
                                        @Override
                                        public void call(Throwable throwable) {
@@ -284,12 +282,8 @@ public class HomePresenter implements Presenter<ActivityHome>{
     @Override
     public void onViewAttached(ActivityHome view) {
         this.view = view;
-        if(userId == null){
-            init();
-        }
+        init();
         view.setupViewPager();
-
-
     }
 
     @Override
@@ -300,18 +294,25 @@ public class HomePresenter implements Presenter<ActivityHome>{
 
     @Override
     public void onDestroyed() {
-
+        Log.d("lifecycle","onDestroyed");
     }
 
     public void allFactsFragmentReady() {
-        if(factsCache != null){
-            view.showAllFacts(factsCache);
+        Log.d("Frag", "All facts Ready");
+        if(factsCache != null ){
+            if(factsCache.size() > 0){
+                view.showAllFacts(factsCache);
+            }else{
+                fetchAllFacts();
+            }
+
         }else{
             fetchAllFacts();
         }
     }
 
     public void favFactsFragmentReady() {
+        Log.d("Frag", "All  fav facts Ready");
         if(favFactList != null){
             view.showFavFacts(favFactList);
         }else{

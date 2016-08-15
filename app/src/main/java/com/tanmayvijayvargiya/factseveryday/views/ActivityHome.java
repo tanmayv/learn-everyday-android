@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -18,6 +19,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,10 +35,8 @@ import com.tanmayvijayvargiya.factseveryday.helper.Presenter;
 import com.tanmayvijayvargiya.factseveryday.helper.PresenterFactory;
 import com.tanmayvijayvargiya.factseveryday.helper.PresenterLoader;
 import com.tanmayvijayvargiya.factseveryday.models.Fact;
-import com.tanmayvijayvargiya.factseveryday.models.User;
 import com.tanmayvijayvargiya.factseveryday.presenters.HomePresenter;
 import com.tanmayvijayvargiya.factseveryday.services.SharedPreferencesManager;
-import com.tanmayvijayvargiya.factseveryday.singletons.UserSingleton;
 
 import java.util.List;
 
@@ -103,62 +103,57 @@ public class ActivityHome extends AppCompatActivity
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-
-
+        setLoginDetails();
+        setupViewPager();
 
     }
 
 
     public void setLoginDetails(){
-        UserSingleton.getInstance().getLoggedInUser(this, new UserSingleton.Callback() {
-            @Override
-            public void success(User user) {
-                if(user != null) {
-                    loggedUserEmail.setText(user.getEmailId());
-                    if(user.getName() != null)
-                        loggedUserName.setText(user.getName().fullName());
-                    Picasso.with(getApplicationContext()).load(user.getProfilePicUrl()).into(loggedProfilePic);
-                }
-            }
-
-            @Override
-            public void error(Throwable e) {
-
-            }
-        });
+        String userName = SharedPreferencesManager.getLoggedInUserName(this);
+        String userEmail = SharedPreferencesManager.getLoggedInUserEmail(this);
+        String userProfile = SharedPreferencesManager.getLoggedInUserprofile(this);
+        loggedUserEmail.setText(userEmail);
+        loggedUserName.setText(userName);
+        Picasso.with(getApplicationContext()).load(userProfile).into(loggedProfilePic);
     }
 
     public void setupViewPager() {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), new ViewPagerAdapter.FragmentReferenceListener() {
-            @Override
-            public void onAllFactFragmentInstance(ListOfFactsFragment fragment) {
-                discoverFragment = fragment;
-                mPresenter.allFactsFragmentReady();
-            }
+        if(viewPager.getAdapter() == null) {
+            ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), new ViewPagerAdapter.FragmentReferenceListener() {
+                @Override
+                public void onAllFactFragmentInstance(ListOfFactsFragment fragment) {
+                    discoverFragment = fragment;
+                    mPresenter.allFactsFragmentReady();
+                }
 
-            @Override
-            public void onFavFactFragmentInstance(ListOfFactsFragment fragment) {
-                favFragment = fragment;
-                mPresenter.favFactsFragmentReady();
-            }
-        });
-        viewPager.setAdapter(adapter);
-        tabLayout.setupWithViewPager(viewPager);
+                @Override
+                public void onFavFactFragmentInstance(ListOfFactsFragment fragment) {
+                    favFragment = fragment;
+                    mPresenter.favFactsFragmentReady();
+                }
+            });
+            viewPager.setAdapter(adapter);
+            tabLayout.setupWithViewPager(viewPager);
+        }
     }
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Ready to use presenter
-        mPresenter.onViewAttached(this);
-
     }
 
     @Override
     protected void onStop() {
-        mPresenter.onViewDetached();
         super.onStop();
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("lifecycle", "onRestart");
+        mPresenter.onViewAttached(this);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -166,7 +161,8 @@ public class ActivityHome extends AppCompatActivity
         // register GCM registration complete receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(Config.REGISTRATION_COMPLETE));
-
+        mPresenter.onViewAttached(this);
+        Log.d("lifecycle", "onResume");
         // register new push message receiver
         // by doing this, the activity will be notified each time a new message arrives
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
@@ -175,6 +171,7 @@ public class ActivityHome extends AppCompatActivity
 
     @Override
     protected void onPause() {
+        mPresenter.onViewDetached();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
     }
@@ -204,12 +201,7 @@ public class ActivityHome extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_logout) {
-            SharedPreferencesManager.setLoggedInUserid(this,null);
-            SharedPreferencesManager.setLoggedInUserName(this,null);
-            startActivity(new Intent(this, LoginActivity.class));
-            return true;
-        }
+
 
         if(id == R.id.action_search){
             startActivity(new Intent(this,SearchActivity.class));
@@ -223,20 +215,21 @@ public class ActivityHome extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-//
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
+        if(id == R.id.nav_logout){
+            SharedPreferencesManager.setLoggedInUserid(this,null);
+            SharedPreferencesManager.setLoggedInUserName(this,null);
+            navigateToLogin();
+            return true;
+        }
+        if(id == R.id.nav_rate_us){
+            final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+            } catch (android.content.ActivityNotFoundException anfe) {
+
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+            }
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -245,8 +238,9 @@ public class ActivityHome extends AppCompatActivity
 
 
     public void navigateToLogin(){
-        startActivity(new Intent(this, LoginActivity.class));
         finish();
+        startActivity(new Intent(this, LoginActivity.class));
+
     }
 
 
@@ -285,8 +279,23 @@ public class ActivityHome extends AppCompatActivity
         shareText(fact.getTitle(), fact.getContent());
     }
 
+    @Override
+    public void navigateToFactViewActivity(Fact fact) {
+        if(fact.get_id() != null) {
+            Bundle factBundle = new Bundle();
+            factBundle.putString("factId", fact.get_id());
+            factBundle.putString("factTitle", fact.getTitle());
+            factBundle.putString("factContent", fact.getContent());
+
+            Intent i = new Intent(this,FactViewActivity.class);
+            i.putExtra("fact", factBundle);
+            startActivity(i);
+
+        }
+    }
+
     private void shareText(String title, String content) {
-        String shareContent = "**Fact : " + title + "\n\n**";
+        String shareContent = "Fact : " + title + "\n\n";
         shareContent = shareContent.concat(content.concat("\n\nShared via Facts - Learn Everyday"));
 
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);

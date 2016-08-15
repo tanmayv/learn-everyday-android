@@ -30,6 +30,7 @@ public class LoginPresenter {
         user.setFullName(firstName,lastName);
         user.setEmailId(email);
 
+
         apiService.getApi()
                 .createUser(user)
                 .observeOn(AndroidSchedulers.mainThread())

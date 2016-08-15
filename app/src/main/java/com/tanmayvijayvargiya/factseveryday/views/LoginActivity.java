@@ -110,7 +110,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             User user = new User();
             user.setFullName(acct.getDisplayName(), "");
             user.setEmailId(acct.getEmail());
-            user.setProfilePicUrl(acct.getPhotoUrl().toString());
+            try{
+                if(acct.getPhotoUrl() != null)
+                    user.setProfilePicUrl(acct.getPhotoUrl().toString());
+            }catch (NullPointerException e){
+                Log.d("Shit","No profile picture for the user");
+            }
+
+            SharedPreferencesManager.setLoggedInUserEmail(this, user.getEmailId());
+            SharedPreferencesManager.setLoggedInUserName(this, user.getName().fullName());
+            SharedPreferencesManager.setLoggedInUserprofile(this,user.getProfilePicUrl());
             LearnEverydayService.getInstance().getApi()
                     .createUser(user)
                     .subscribeOn(Schedulers.newThread())
@@ -128,12 +137,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                         @Override
                         public void onNext(User user) {
-                            SharedPreferencesManager.setLoggedInUserid(getApplicationContext(),user.get_id());
+                            SharedPreferencesManager.setLoggedInUserid(getApplicationContext(), user.get_id());
                             SharedPreferencesManager.setLoggedInUserName(getApplicationContext(), user.getName().fullName());
                             user.setProfilePicUrl(acct.getPhotoUrl().toString());
                             UserSingleton.getInstance().setLoggedInUser(user);
-                            startActivity(new Intent(getApplicationContext(),ActivityHome.class));
                             finish();
+                            startActivity(new Intent(getApplicationContext(), ActivityHome.class));
+
                         }
                     });
 

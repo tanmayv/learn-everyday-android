@@ -3,6 +3,7 @@ package com.tanmayvijayvargiya.factseveryday.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.tanmayvijayvargiya.factseveryday.views.ListOfFactsFragment;
@@ -42,8 +43,10 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+        Log.d("Frag", "Fetch me a fragment at "  + position);
         switch (position){
-            case 0 : return ListOfFactsFragment.newInstance(ListOfFactsFragment.ALL_FACTS_MODE);
+            case 0 :
+                return ListOfFactsFragment.newInstance(ListOfFactsFragment.ALL_FACTS_MODE);
             case 1 : return ListOfFactsFragment.newInstance(ListOfFactsFragment.FAV_FACTS_MODE);
         }
         return null;
@@ -58,7 +61,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         Fragment createFragemnt = (Fragment) super.instantiateItem(container, position);
-
+        if(createFragemnt == null){
+            Log.d("Frag", "Created Fragment is null "  + position);
+        }else{
+            Log.d("Frag", "Created Fragment is not null. " + position);
+        }
         switch (position){
             case 0 : allFactFragment = (ListOfFactsFragment) createFragemnt;
                 mListener.onAllFactFragmentInstance(allFactFragment);

@@ -14,6 +14,9 @@ public class SharedPreferencesManager {
     // properties
     private static final String LOGGED_IN_USERID = "LED_USER_LOGGED_IN";
     private static final String LOGGED_IN_USERNAME = "LED_USER_LOGGED_NAME";
+    private static final String LOGGED_IN_USEREMAIL = "LOGGED_IN_USEREMAIL";
+    private static final String LOGGED_IN_USERPROFILE = "LOGGED_IN_USERPROFILE";
+
     private static final String CURRENT_VERSION_CODE = "CURRENT_VERSION_CODE";
     // other properties...
 
@@ -43,7 +46,25 @@ public class SharedPreferencesManager {
         editor.putString(LOGGED_IN_USERNAME, newValue);
         editor.commit();
     }
+    public static String getLoggedInUserEmail(Context context) {
+        return getSharedPreferences(context).getString(LOGGED_IN_USEREMAIL, null);
+    }
 
+    public static void setLoggedInUserEmail(Context context, String newValue) {
+        final SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(LOGGED_IN_USEREMAIL, newValue);
+        editor.commit();
+    }
+
+    public static String getLoggedInUserprofile(Context context) {
+        return getSharedPreferences(context).getString(LOGGED_IN_USERPROFILE, null);
+    }
+
+    public static void setLoggedInUserprofile(Context context, String newValue) {
+        final SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(LOGGED_IN_USERPROFILE, newValue);
+        editor.commit();
+    }
     public static int getCurrentVersionCode(Context context){
         return getSharedPreferences(context).getInt(CURRENT_VERSION_CODE,0);
     }

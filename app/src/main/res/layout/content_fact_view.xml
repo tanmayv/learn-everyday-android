@@ -2,7 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
+    android:layout_marginTop="55dp"
     android:layout_height="wrap_content"
     android:layout_width="match_parent">
     <RelativeLayout
@@ -16,6 +16,7 @@
         >
         <TextView
             android:id="@+id/title_text"
+            android:transitionName="@string/title_transition"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -88,6 +89,7 @@
 
         <TextView
             android:id="@+id/fact_content_text"
+            android:transitionName="@string/content_transition"
             android:layout_below="@+id/bannerImage"
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/activity_vertical_margin"

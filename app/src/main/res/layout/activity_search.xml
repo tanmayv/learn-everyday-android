@@ -22,7 +22,6 @@
             android:singleLine="true"
             android:selectAllOnFocus="true"
             android:hint="Search ..."
-            android:background="@color/primary_dark"
             android:maxLines="1"
             android:id="@+id/query_edit_text"
             android:gravity="center_vertical"

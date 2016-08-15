@@ -52,6 +52,8 @@ public class ListOfFactsFragment extends Fragment implements FactsListAdapter.Fa
         if(factsListAdapter != null) {
             factsListAdapter.setFactList(factList);
             internetErrorText.setVisibility(View.INVISIBLE);
+        }else{
+            Log.d("Frag","Fragment Adapter is Null, Cant set the list");
         }
 
         notifyDataSetChanged();
@@ -199,11 +201,18 @@ public class ListOfFactsFragment extends Fragment implements FactsListAdapter.Fa
         mListener.shareButtonClicked(fact, currentMode);
     }
 
+    @Override
+    public void navigateToFactViewActivity(Fact fact) {
+        mListener.navigateToFactViewActivity(fact);
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void favButtonClicked(Fact fact, int mode);
         void refreshFactsList(int mode);
         boolean endOfListReached(int mode);
         void shareButtonClicked(Fact fact, int currentMode);
+
+        void navigateToFactViewActivity(Fact fact);
     }
 }

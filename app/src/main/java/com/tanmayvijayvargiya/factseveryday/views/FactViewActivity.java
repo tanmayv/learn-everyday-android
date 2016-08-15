@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,12 +35,48 @@ public class FactViewActivity extends AppCompatActivity {
     TextView titleText, usernameText, timestampText, factContentText;
     CircleImageView profilePic;
     AppCompatImageView bannerImage, favImage, shareImage;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_fact_view, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            // close this activity and return to preview activity (if there is any)
+        }
+
+        if(item.getItemId() == R.id.action_share){
+            shareText(mFact.getTitle(), mFact.getContent());
+        }
+
+        if(item.getItemId() == R.id.action_search){
+            finish();
+            startActivity(new Intent(this,SearchActivity.class));
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fact_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Fact");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setElevation(2);
+
         titleText  = (TextView) findViewById(R.id.title_text);
         usernameText = (TextView) findViewById(R.id.username_text);
         timestampText = (TextView) findViewById(R.id.timestamp_text);
@@ -149,14 +187,14 @@ public class FactViewActivity extends AppCompatActivity {
             favImage.setImageResource(R.drawable.heartred);
         }else
             favImage.setImageResource(R.drawable.heartgrey);
-        favImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-                fact.isFavorite = !fact.isFavorite;
-
-            }
-        });
+        if(!favImage.hasOnClickListeners())
+            favImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                    fact.isFavorite = !fact.isFavorite;
+                }
+            });
 
         if(fact.getCreatedAt() != null){
             try{
@@ -168,13 +206,24 @@ public class FactViewActivity extends AppCompatActivity {
                 Log.d("Shit", "Unable to parse " + fact.getCreatedAt());
             }
         }
-        shareImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if(!shareImage.hasOnClickListeners())
+            shareImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-            }
-        });
+                }
+            });
 
+    }
+    private void shareText(String title, String content) {
+        String shareContent = "Fact : " + title + "\n\n";
+        shareContent = shareContent.concat(content.concat("\n\nShared via Facts - Learn Everyday"));
+
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(Intent.EXTRA_TITLE, title);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareContent);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 }
 

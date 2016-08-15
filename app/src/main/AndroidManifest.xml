@@ -70,6 +70,10 @@
         <activity
             android:name=".views.FactViewActivity"
             android:label="@string/title_activity_fact_view"
+            android:theme="@style/MyMaterialTheme" />
+        <activity
+            android:name=".views.ViewFactActivity"
+            android:label="@string/title_activity_view_fact"
             android:theme="@style/MyMaterialTheme"></activity>
     </application>
 
