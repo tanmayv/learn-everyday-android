@@ -8,6 +8,8 @@ import com.tanmayvijayvargiya.factseveryday.di.module.ApiModule;
 import com.tanmayvijayvargiya.factseveryday.di.module.AppModule;
 import com.tanmayvijayvargiya.factseveryday.job.FetchFactsJob;
 import com.tanmayvijayvargiya.factseveryday.job.FetchUserJob;
+import com.tanmayvijayvargiya.factseveryday.job.RegisterWithServerGCMJob;
+import com.tanmayvijayvargiya.factseveryday.job.SyncUserJob;
 import com.tanmayvijayvargiya.factseveryday.job.UpdateFactJob;
 import com.tanmayvijayvargiya.factseveryday.model.FactModel;
 import com.tanmayvijayvargiya.factseveryday.model.UserModel;
@@ -38,4 +40,6 @@ public interface AppComponent {
     void inject(UpdateFactJob updateFactJob);
     void inject(HomeController homeController);
     void inject(FetchUserJob fetchUserJob);
+    void inject(RegisterWithServerGCMJob registerWithServerGCMJob);
+    void inject(SyncUserJob syncUserJob);
 }

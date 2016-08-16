@@ -119,6 +119,7 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
             if(fact.getBannerUrl() != null && fact.getBannerUrl() != ""){
                 Picasso.with(context)
                         .load(fact.getBannerUrl())
+                        .placeholder(R.drawable.placeholder)
                         .resize(dp2px(220), 0)
                         .into(bannerImage);
             }
@@ -146,7 +147,15 @@ public class FactsListAdapter extends RecyclerView.Adapter<FactsListAdapter.View
                 factContentText.setText(fact.getContent());
 
             if(fact.isFavorite){
-                favImage.setImageResource(R.drawable.heartred);
+
+                Animation animation = AnimationUtils.loadAnimation(context, R.anim.pop_heart);
+                if(fact.isSynced)
+
+                    favImage.setImageResource(R.drawable.heartred);
+                else
+                    favImage.setImageResource(R.drawable.heart_cold);
+                favImage.startAnimation(animation);
+
             }else
                 favImage.setImageResource(R.drawable.heartgrey);
             favImage.setOnClickListener(new View.OnClickListener() {

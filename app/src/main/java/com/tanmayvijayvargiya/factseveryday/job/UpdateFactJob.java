@@ -97,8 +97,9 @@ public class UpdateFactJob extends BaseJob {
             User user = mUserModel.getLoggedInUser();
             user = apiService.updateUser(user.get_id(),user).execute().body();
             user.setFavFacts(user.getFavFacts());
-            Log.d("user", "After Network " + user.getDbFavFactsList());
             if(user != null){
+                mFact.isSynced = true;
+                mFactModel.save(mFact);
                 mEventBus.post(new UserSyncedEvent(user));
             }
 
@@ -109,6 +110,7 @@ public class UpdateFactJob extends BaseJob {
 
     @Override
     protected void onCancel() {
-
+        mFact = mFactModel.loadById(factId);
+        mEventBus.post(new FactSyncedEvent(false, mFact));
     }
 }

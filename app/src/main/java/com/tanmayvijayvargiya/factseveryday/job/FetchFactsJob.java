@@ -59,6 +59,7 @@ public class FetchFactsJob extends BaseJob{
 
             if(favs != null && facts != null) {
                 for(Fact fact: facts){
+                    fact.isSynced = true;
                     if(favs.contains(fact.get_id())){
                         fact.isFavorite = true;
                         Log.d("Feed","Fav of user " + fact.getTitle());

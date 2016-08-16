@@ -12,10 +12,13 @@ import android.widget.EditText;
 
 import com.tanmayvijayvargiya.factseveryday.R;
 import com.tanmayvijayvargiya.factseveryday.adapters.QueryResultAdapter;
+import com.tanmayvijayvargiya.factseveryday.services.LearnEverydayService;
 import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 
 public class SearchActivity extends AppCompatActivity implements QueryResultAdapter.QueryItemListener{
@@ -23,6 +26,9 @@ public class SearchActivity extends AppCompatActivity implements QueryResultAdap
     RecyclerView queryResultRecyclerView;
     EditText queryEditText;
     QueryResultAdapter mAdapter;
+
+    @Inject
+    LearnEverydayService apiService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +48,7 @@ public class SearchActivity extends AppCompatActivity implements QueryResultAdap
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d("Query ", "Query String " + s.toString());
                 if(s.length() > 0){
+
 
 //                    querySub = LearnEverydayService.getInstance().getApi()
 //                            .queryFacts(s.toString())

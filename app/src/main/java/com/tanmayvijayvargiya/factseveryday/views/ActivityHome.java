@@ -21,6 +21,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.path.android.jobqueue.JobManager;
 import com.path.android.jobqueue.Params;
 import com.squareup.picasso.Picasso;
@@ -31,11 +33,15 @@ import com.tanmayvijayvargiya.factseveryday.event.FactSyncedEvent;
 import com.tanmayvijayvargiya.factseveryday.event.FactUpdatedEvent;
 import com.tanmayvijayvargiya.factseveryday.event.FetchFactsEvent;
 import com.tanmayvijayvargiya.factseveryday.event.UserSyncedEvent;
+import com.tanmayvijayvargiya.factseveryday.gcm.GcmIntentService;
 import com.tanmayvijayvargiya.factseveryday.job.FetchFactsJob;
+import com.tanmayvijayvargiya.factseveryday.job.RegisterWithServerGCMJob;
+import com.tanmayvijayvargiya.factseveryday.job.SyncUserJob;
 import com.tanmayvijayvargiya.factseveryday.job.UpdateFactJob;
 import com.tanmayvijayvargiya.factseveryday.model.FactModel;
 import com.tanmayvijayvargiya.factseveryday.model.UserModel;
 import com.tanmayvijayvargiya.factseveryday.services.SharedPreferencesManager;
+import com.tanmayvijayvargiya.factseveryday.utils.TimeUtil;
 import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 import com.tanmayvijayvargiya.factseveryday.vo.User;
 
@@ -56,6 +62,8 @@ public class ActivityHome extends BaseActivity
     private ListOfFactsFragment favFragment;
     TextView loggedUserName, loggedUserEmail;
     CircleImageView loggedProfilePic;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
     private final int LOADER_ID = 9000;
     User mUser;
 
@@ -79,6 +87,11 @@ public class ActivityHome extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String userId = SharedPreferencesManager.getLoggedInUserId(this);
+        if(userId ==null ){
+            finish();
+            startActivity(new Intent(this,LoginActivity.class));
+        }
         setContentView(R.layout.activity_activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -94,7 +107,7 @@ public class ActivityHome extends BaseActivity
                     // gcm successfully registered
                     // now subscribe to `global` topic to receive app wide notifications
                     String token = intent.getStringExtra("token");
-
+                    jobManager.addJobInBackground(new RegisterWithServerGCMJob(new Params(1).requireNetwork(),token));
 
                 } else if (intent.getAction().equals(Config.SENT_TOKEN_TO_SERVER)) {
                     // gcm registration id is stored in our server's MySQL
@@ -128,8 +141,13 @@ public class ActivityHome extends BaseActivity
 
         setLoginDetails();
         setupViewPager();
+        jobManager.addJob(new SyncUserJob(new Params(1).requireNetwork().persist()));
+
         jobManager.addJob(new FetchFactsJob(new Params(1).requireNetwork().persist()));
 
+        if(checkPlayServices()){
+            registerGCM();
+        }
     }
 
     private void refreshFromDiskFacts() {
@@ -137,13 +155,21 @@ public class ActivityHome extends BaseActivity
         allFacts = mFactModel.loadAll();
 
         for(Fact tmp: allFacts){
-            if(tmp.isFavorite && !favFacts.contains(tmp)){
-                favFacts.add(0,tmp);
-            }else{
-                if(favFacts.contains(tmp) && !tmp.isFavorite){
+            boolean contains = favFacts.contains(tmp);
+            if(contains){
+                if(tmp.isSynced && tmp.isFavorite){
+                    favFacts.remove(tmp);
+                    favFacts.add(0,tmp);
+                }
+                if(!tmp.isFavorite){
                     favFacts.remove(tmp);
                 }
+            }else{
+                if(tmp.isFavorite){
+                    favFacts.add(0,tmp);
+                }
             }
+
         }
         if(discoverFragment!= null){
             Log.d("Frag","Discover fragment is updated " + allFacts.size());
@@ -161,21 +187,25 @@ public class ActivityHome extends BaseActivity
 
     public void onEventMainThread(FetchFactsEvent event){
         if(event.isSuccess()){
-            Log.d("Event","Event is success");
+           refreshFromDiskFacts();
         }else{
             Log.d("Event", "Event is not success");
         }
     }
 
     public void onEventMainThread(FactUpdatedEvent e){
+        if(TimeUtil.shouldReload())
         refreshFromDiskFacts();
     }
 
     public void onEventMainThread(FactSyncedEvent e){
-        refreshFromDiskFacts();
+        //refreshFromDiskFacts();
     }
 
     public void onEventMainThread(UserSyncedEvent e){
+
+        if(TimeUtil.shouldReload())
+            refreshFromDiskFacts();
     }
 
 
@@ -188,11 +218,7 @@ public class ActivityHome extends BaseActivity
 
     public void setLoginDetails(){
 
-        String userId = SharedPreferencesManager.getLoggedInUserId(this);
-        if(userId ==null ){
-            finish();
-            startActivity(new Intent(this,LoginActivity.class));
-        }
+
         User user = userModel.getLoggedInUser();
         try{
 
@@ -271,12 +297,8 @@ public class ActivityHome extends BaseActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-
-
         if(id == R.id.action_search){
-            tabLayout.setVisibility(View.GONE);
-            //startActivity(new Intent(this,SearchActivity.class));
+            startActivity(new Intent(this,SearchActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -312,12 +334,15 @@ public class ActivityHome extends BaseActivity
     @Override
     public void favButtonClicked(Fact fact, int mode) {
         Log.d("Fav","Add to fav " + fact.getTitle() + " " + fact.isFavorite);
-        jobManager.addJob(new UpdateFactJob(new Params(1).requireNetwork().persist(),fact.get_id(),fact.isFavorite));
+        jobManager.addJob(new UpdateFactJob(new Params(1).requireNetwork().persist(), fact.get_id(), fact.isFavorite));
     }
 
     @Override
     public void refreshFactsList(int mode) {
-        refreshFromDiskFacts();
+        jobManager.addJob(new SyncUserJob(new Params(1).requireNetwork().persist()));
+        jobManager.addJob(new FetchFactsJob(new Params(1).requireNetwork().persist()));
+        if(TimeUtil.shouldReload())
+            refreshFromDiskFacts();
     }
 
     @Override
@@ -327,7 +352,7 @@ public class ActivityHome extends BaseActivity
 
     @Override
     public void shareButtonClicked(Fact fact, int currentMode) {
-
+        shareText(fact.getTitle(),fact.getContent());
     }
 
     @Override
@@ -337,7 +362,40 @@ public class ActivityHome extends BaseActivity
 
     @Override
     protected void onStop() {
-        super.onStart();
+        super.onStop();
         mEventBus.unregister(this);
+    }
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i("SHIT", "This device is not supported. Google Play Services not installed!");
+                Toast.makeText(this, "This device is not supported. Google Play Services not installed!", Toast.LENGTH_LONG).show();
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    // starting the service to register with GCM
+    private void registerGCM() {
+        Intent intent = new Intent(this, GcmIntentService.class);
+        intent.putExtra("key", "register");
+        this.startService(intent);
+    }
+    private void shareText(String title, String content) {
+        String shareContent = "Fact : " + title + "\n\n";
+        shareContent = shareContent.concat(content.concat("\n\nShared via Facts - Learn Everyday"));
+
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(Intent.EXTRA_TITLE, title);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareContent);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 }

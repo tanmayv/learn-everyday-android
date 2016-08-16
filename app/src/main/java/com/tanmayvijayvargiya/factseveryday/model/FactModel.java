@@ -43,7 +43,7 @@ public class FactModel {
     }
 
     public List<Fact> loadAll(){
-        return new Select().from(Fact.class).queryList();
+        return new Select().from(Fact.class).orderBy(Fact_Table.createdAt, false).queryList();
     }
 
     public Fact loadById(String factId) {

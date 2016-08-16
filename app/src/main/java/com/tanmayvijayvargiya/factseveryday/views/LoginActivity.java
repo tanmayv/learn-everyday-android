@@ -144,7 +144,7 @@ public class LoginActivity extends BaseActivity implements GoogleApiClient.OnCon
         Log.d("Event", "User Synced " + e.getUser().get_id());
         User user = e.getUser();
         SharedPreferencesManager.setLoggedInUserid(this, user.get_id());
-
+        mEventBus.unregister(this);
         finish();
         startActivity(new Intent(getApplicationContext(), ActivityHome.class));
     }
