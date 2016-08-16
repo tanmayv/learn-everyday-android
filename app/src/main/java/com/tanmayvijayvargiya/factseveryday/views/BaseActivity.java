@@ -45,7 +45,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        cancelPendingJobs();
+        cancelPendingJobsOnStop();
     }
 
     abstract void cancelPendingJobsOnStop();

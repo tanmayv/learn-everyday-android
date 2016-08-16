@@ -28,15 +28,27 @@ import com.squareup.picasso.Picasso;
 import com.tanmayvijayvargiya.factseveryday.R;
 import com.tanmayvijayvargiya.factseveryday.adapters.ViewPagerAdapter;
 import com.tanmayvijayvargiya.factseveryday.app.Config;
+import com.tanmayvijayvargiya.factseveryday.event.FactSyncedEvent;
+import com.tanmayvijayvargiya.factseveryday.event.FactUpdatedEvent;
+import com.tanmayvijayvargiya.factseveryday.event.FetchFactsEvent;
+import com.tanmayvijayvargiya.factseveryday.event.UserSyncedEvent;
 import com.tanmayvijayvargiya.factseveryday.job.FetchFactsJob;
+import com.tanmayvijayvargiya.factseveryday.job.UpdateFactJob;
+import com.tanmayvijayvargiya.factseveryday.model.FactModel;
 import com.tanmayvijayvargiya.factseveryday.model.UserModel;
 import com.tanmayvijayvargiya.factseveryday.services.SharedPreferencesManager;
+import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 import com.tanmayvijayvargiya.factseveryday.vo.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import de.greenrobot.event.EventBus;
+
 public class ActivityHome extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener, ListOfFactsFragment.OnFragmentInteractionListener{
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -45,6 +57,7 @@ public class ActivityHome extends BaseActivity
     TextView loggedUserName, loggedUserEmail;
     ImageView loggedProfilePic;
     private final int LOADER_ID = 9000;
+    User mUser;
 
     private BroadcastReceiver mRegistrationBroadcastReceiver;
 
@@ -54,6 +67,15 @@ public class ActivityHome extends BaseActivity
     @Inject
     JobManager jobManager;
 
+    @Inject
+    EventBus mEventBus;
+
+    @Inject
+    FactModel mFactModel;
+
+    List<Fact> allFacts = new ArrayList<Fact>();
+    List<Fact> favFacts = new ArrayList<Fact>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +83,7 @@ public class ActivityHome extends BaseActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getComponent().inject(this);
+        mEventBus.register(this);
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -103,34 +126,85 @@ public class ActivityHome extends BaseActivity
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-//        setLoginDetails();
-//        setupViewPager();
-
-        User user = new User();
-        user.set_id("2");
-        user.setDbName("tanmay Vijay");
-        user.setEmailId("13tanmayvijay@gmail.com");
-        userModel.setLoggedInUser(user);
-
-        user = userModel.getLoggedInUser();
-        Log.d("db", "Logged In User " + user.getName().fullName());
-
-
+        setLoginDetails();
+        setupViewPager();
         jobManager.addJob(new FetchFactsJob(new Params(1).requireNetwork().persist()));
+
     }
+
+    private void refreshFromDiskFacts() {
+
+        allFacts = mFactModel.loadAll();
+
+        for(Fact tmp: allFacts){
+            if(tmp.isFavorite && !favFacts.contains(tmp)){
+                favFacts.add(0,tmp);
+            }else{
+                if(favFacts.contains(tmp) && !tmp.isFavorite){
+                    favFacts.remove(tmp);
+                }
+            }
+        }
+        if(discoverFragment!= null){
+            Log.d("Frag","Discover fragment is updated " + allFacts.size());
+            discoverFragment.setFactList(allFacts);
+            discoverFragment.notifyDataSetChanged();
+        }
+        if(favFragment != null){
+            Log.d("Frag","Fav fragment is updated " + favFacts.size());
+            favFragment.setFactList(favFacts);
+            favFragment.notifyDataSetChanged();
+        }
+
+
+    }
+
+    public void onEventMainThread(FetchFactsEvent event){
+        if(event.isSuccess()){
+            Log.d("Event","Event is success");
+        }else{
+            Log.d("Event", "Event is not success");
+        }
+    }
+
+    public void onEventMainThread(FactUpdatedEvent e){
+        refreshFromDiskFacts();
+    }
+
+    public void onEventMainThread(FactSyncedEvent e){
+        refreshFromDiskFacts();
+    }
+
+    public void onEventMainThread(UserSyncedEvent e){
+    }
+
+
 
     @Override
     void cancelPendingJobsOnStop() {
-
+       // jobManager.cancelJobs(TagConstraint.ALL);
     }
 
 
     public void setLoginDetails(){
+
+        String userId = SharedPreferencesManager.getLoggedInUserId(this);
+        if(userId ==null ){
+            finish();
+            startActivity(new Intent(this,LoginActivity.class));
+        }
+        User user = userModel.getLoggedInUser();
+        try{
+
+        }catch (Exception e){
+
+        }
         String userName = SharedPreferencesManager.getLoggedInUserName(this);
         String userEmail = SharedPreferencesManager.getLoggedInUserEmail(this);
         String userProfile = SharedPreferencesManager.getLoggedInUserprofile(this);
         loggedUserEmail.setText(userEmail);
         loggedUserName.setText(userName);
+
         Picasso.with(getApplicationContext()).load(userProfile).into(loggedProfilePic);
     }
 
@@ -216,6 +290,8 @@ public class ActivityHome extends BaseActivity
         if(id == R.id.nav_logout){
             SharedPreferencesManager.setLoggedInUserid(this, null);
             SharedPreferencesManager.setLoggedInUserName(this, null);
+            finish();
+            startActivity(new Intent(this,LoginActivity.class));
             return true;
         }
         if(id == R.id.nav_rate_us){
@@ -233,4 +309,29 @@ public class ActivityHome extends BaseActivity
         return true;
     }
 
+    @Override
+    public void favButtonClicked(Fact fact, int mode) {
+        Log.d("Fav","Add to fav " + fact.getTitle() + " " + fact.isFavorite);
+        jobManager.addJob(new UpdateFactJob(new Params(1).requireNetwork().persist(),fact.get_id(),fact.isFavorite));
+    }
+
+    @Override
+    public void refreshFactsList(int mode) {
+        refreshFromDiskFacts();
+    }
+
+    @Override
+    public boolean endOfListReached(int mode) {
+        return false;
+    }
+
+    @Override
+    public void shareButtonClicked(Fact fact, int currentMode) {
+
+    }
+
+    @Override
+    public void navigateToFactViewActivity(Fact fact) {
+
+    }
 }

@@ -2,7 +2,6 @@ package com.tanmayvijayvargiya.factseveryday.views;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
@@ -17,12 +16,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.path.android.jobqueue.JobManager;
+import com.path.android.jobqueue.Params;
 import com.squareup.picasso.Picasso;
 import com.tanmayvijayvargiya.factseveryday.R;
+import com.tanmayvijayvargiya.factseveryday.event.UserSyncedEvent;
+import com.tanmayvijayvargiya.factseveryday.job.FetchUserJob;
 import com.tanmayvijayvargiya.factseveryday.services.SharedPreferencesManager;
 import com.tanmayvijayvargiya.factseveryday.vo.User;
 
-public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
+import javax.inject.Inject;
+
+import de.greenrobot.event.EventBus;
+
+public class LoginActivity extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
 
     EditText firstName, lastName, email, userId;
     AppCompatButton signup, login;
@@ -30,10 +37,19 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
+
+    @Inject
+    EventBus mEventBus;
+
+    @Inject
+    JobManager jobManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        getComponent().inject(this);
+        mEventBus.register(this);
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestProfile()
@@ -57,6 +73,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         ImageView bgImage = (ImageView) findViewById(R.id.background_image_login);
         Picasso.with(this).load(R.drawable.comfy_dog).into(bgImage);
+    }
+
+    @Override
+    void cancelPendingJobsOnStop() {
+
     }
 
     public void navigateToHome(User user){
@@ -112,35 +133,20 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             SharedPreferencesManager.setLoggedInUserEmail(this, user.getEmailId());
             SharedPreferencesManager.setLoggedInUserName(this, user.getName().fullName());
             SharedPreferencesManager.setLoggedInUserprofile(this, user.getProfilePicUrl());
-//            LearnEverydayService.getInstance().getApi()
-//                    .createUser(user)
-//                    .subscribeOn(Schedulers.newThread())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(new Observer<User>() {
-//                        @Override
-//                        public void onCompleted() {
-//
-//                        }
-//
-//                        @Override
-//                        public void onError(Throwable e) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onNext(User user) {
-//                            SharedPreferencesManager.setLoggedInUserid(getApplicationContext(), user.get_id());
-//                            SharedPreferencesManager.setLoggedInUserName(getApplicationContext(), user.getName().fullName());
-//                            user.setProfilePicUrl(acct.getPhotoUrl().toString());
-//                            UserSingleton.getInstance().setLoggedInUser(user);
-//                            finish();
-//                            startActivity(new Intent(getApplicationContext(), ActivityHome.class));
-//
-//                        }
-//                    });
 
+
+            jobManager.addJob(new FetchUserJob(new Params(10).requireNetwork().persist(),user.getName().fullName(), user.getEmailId()));
         } else {
 
         }
+    }
+
+    public void onEventMainThread(UserSyncedEvent e){
+        Log.d("Event", "User Synced " + e.getUser().get_id());
+        User user = e.getUser();
+        SharedPreferencesManager.setLoggedInUserid(this, user.get_id());
+
+        finish();
+        startActivity(new Intent(getApplicationContext(), ActivityHome.class));
     }
 }

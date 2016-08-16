@@ -17,14 +17,12 @@ import com.tanmayvijayvargiya.factseveryday.vo.Fact;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Subscription;
 
 public class SearchActivity extends AppCompatActivity implements QueryResultAdapter.QueryItemListener{
 
     RecyclerView queryResultRecyclerView;
     EditText queryEditText;
     QueryResultAdapter mAdapter;
-    Subscription querySub;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,10 +42,7 @@ public class SearchActivity extends AppCompatActivity implements QueryResultAdap
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d("Query ", "Query String " + s.toString());
                 if(s.length() > 0){
-                    if(querySub != null){
-//                        if(!querySub.isUnsubscribed())
-//                            querySub.unsubscribe();
-                    }
+
 //                    querySub = LearnEverydayService.getInstance().getApi()
 //                            .queryFacts(s.toString())
 //                            .subscribeOn(Schedulers.newThread())

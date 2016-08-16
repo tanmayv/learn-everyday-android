@@ -8,12 +8,14 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.tanmayvijayvargiya.factseveryday.model.AppDatabase;
+import com.tanmayvijayvargiya.factseveryday.utils.Validate;
+import com.tanmayvijayvargiya.factseveryday.utils.ValidationFailedException;
 
 /**
  * Created by tanmayvijayvargiya on 02/07/16.
  */
 @Table(database = AppDatabase.class)
-public class Fact extends BaseModel {
+public class Fact extends BaseModel implements Validate {
 
     @Column
     @PrimaryKey
@@ -50,6 +52,15 @@ public class Fact extends BaseModel {
 
     @Column
     public boolean isSynced = false;
+
+    @Override
+    public void validate() {
+        if(get_id() == null || get_id() =="")
+            throw new ValidationFailedException("Fact Id should not be empty");
+        if(getTitle() == null || getTitle() == ""){
+            throw new ValidationFailedException("Fact title should not be empty ");
+        }
+    }
 
     public class Author{
         @SerializedName("name")

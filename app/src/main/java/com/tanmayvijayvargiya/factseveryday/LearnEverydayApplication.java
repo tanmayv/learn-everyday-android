@@ -11,10 +11,9 @@ import android.util.Log;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.tanmayvijayvargiya.factseveryday.di.component.AppComponent;
-import com.tanmayvijayvargiya.factseveryday.di.component.DaggerAppComponent;
+import com.tanmayvijayvargiya.factseveryday.di.component .DaggerAppComponent;
 import com.tanmayvijayvargiya.factseveryday.di.module.AppModule;
 import com.tanmayvijayvargiya.factseveryday.services.SharedPreferencesManager;
-import com.tanmayvijayvargiya.factseveryday.singletons.RestAdapterSingleton;
 import com.tanmayvijayvargiya.factseveryday.singletons.UserSingleton;
 
 /**
@@ -42,11 +41,11 @@ public class LearnEverydayApplication extends Application{
                 .appModule(new AppModule(this))
                 .build();
 
+        isUpdateCheck();
     }
 
     protected void initSingletons()
     {
-        RestAdapterSingleton.initInstance();
         UserSingleton.initInstance(getApplicationContext());
     }
 
@@ -65,7 +64,6 @@ public class LearnEverydayApplication extends Application{
                     .getPackageInfo(this.getPackageName(), 0);
             int versionCode = packageInfo.versionCode;
             if(lastVersionCode == 0) {
-                Log.d("Shit","RESET BITCH " + lastVersionCode);
                 SharedPreferencesManager.setLoggedInUserid(this,null);
                 SharedPreferencesManager.setLoggedInUserName(this, null);
                 SharedPreferencesManager.setCurrentVersionCode(this,versionCode);

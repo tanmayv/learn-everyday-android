@@ -103,6 +103,7 @@ public class ListOfFactsFragment extends Fragment implements FactsListAdapter.Fa
         initRecyclerView();
         Log.d("Shit", "Everythins is updated");
         currentMode = getArguments().getInt("MODE");
+        mListener.refreshFactsList(currentMode);
         return view;
     }
 
@@ -186,6 +187,7 @@ public class ListOfFactsFragment extends Fragment implements FactsListAdapter.Fa
     public void notifyDataSetChanged() {
         if(factsListAdapter != null)
             factsListAdapter.notifyDataSetChanged();
+        if(factSwipeRefreshView != null)
         factSwipeRefreshView.setRefreshing(false);
     }
 

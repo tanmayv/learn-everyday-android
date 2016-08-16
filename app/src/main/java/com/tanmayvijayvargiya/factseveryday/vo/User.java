@@ -1,5 +1,7 @@
 package com.tanmayvijayvargiya.factseveryday.vo;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -15,6 +17,7 @@ import java.util.List;
 /**
  * Created by tanmayvijayvargiya on 03/07/16.
  */
+
 
 @Table(database = AppDatabase.class)
 public class User extends BaseModel implements Validate{
@@ -95,6 +98,8 @@ public class User extends BaseModel implements Validate{
     }
 
     public void set_id(String _id) {
+
+        Log.d("User","User setter running");
         this._id = _id;
     }
 
@@ -109,8 +114,9 @@ public class User extends BaseModel implements Validate{
     }
 
     public void setFavFacts(List<String> favFacts) {
+        Log.d("User","User favFacts setter running");
         this.favFacts = favFacts;
-        this.dbFavFactsList = StringUtil.listToString(favFacts,null);
+        //this.dbFavFactsList = StringUtil.listToString(favFacts,null);
     }
 
     public Name getName() {
@@ -149,11 +155,8 @@ public class User extends BaseModel implements Validate{
     @Override
     public void validate() {
         if(this.get_id() == null){
-            throw new ValidationFailedException("User id is NULL");
-        }
 
-        if(this.getName() == null){
-            throw new ValidationFailedException("User name is NULL");
+            throw new ValidationFailedException("User id is NULL");
         }
 
         if(this.getName().fullName() == "" ){

@@ -1,6 +1,7 @@
 package com.tanmayvijayvargiya.factseveryday.job;
 
 import android.support.annotation.IntDef;
+import android.util.Log;
 
 import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
@@ -28,6 +29,7 @@ abstract public class BaseJob extends Job {
     }
 
     protected boolean shouldRetry(Throwable throwable) {
+        Log.e("Error" , throwable.getMessage());
         if (throwable instanceof NetworkException) {
             NetworkException exception = (NetworkException) throwable;
             return exception.shouldRetry();

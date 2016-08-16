@@ -5,13 +5,14 @@ import com.tanmayvijayvargiya.factseveryday.vo.User;
 
 import java.util.List;
 
-import retrofit.Callback;
-import retrofit.http.Body;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.Path;
-import retrofit.http.Query;
-import rx.Observable;
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
+
 
 /**
  * Created by tanmayvijayvargiya on 02/07/16.
@@ -19,32 +20,32 @@ import rx.Observable;
 public interface LearnEverydayService {
 
     @GET("/")
-    public Observable<List<Fact>> queryFacts(@Query("q") String queryString);
+    public Call<List<Fact>> queryFacts(@Query("q") String queryString);
 
     @GET("/api/facts")
-    public List<Fact> getFacts();
+    public Call<List<Fact>> getFacts();
     @GET("/api/facts/after/{timestampFrom}")
-    public List<Fact> getFactsBetweenTimestamp(@Path("timestampFrom") String timestampFrom);
+    public Call<List<Fact>> getFactsBetweenTimestamp(@Path("timestampFrom") String timestampFrom);
 
     @POST("/api/facts")
-    public Fact createFact(@Body Fact fact);
+    public Call<Fact> createFact(@Body Fact fact);
 
     @GET("/api/facts/{factId}")
-    public Observable<Fact> getFact(@Path("factId") String factId);
+    public Call<Fact> getFact(@Path("factId") String factId);
 
     @POST("/api/facts/{factId}")
-    public Observable<Fact> updateFact(@Path("factId") String factId, @Body Fact fact);
+    public Call<Fact> updateFact(@Path("factId") String factId, @Body Fact fact);
 
     @POST("/api/users")
-    public Observable<User> createUser(@Body User user);
+    public Call<User> createUser(@Body User user);
 
     @POST("/api/users/{userId}")
-    public Observable<User> updateUser(@Path("userId") String userId, @Body User user);
+    public Call<User> updateUser(@Path("userId") String userId, @Body User user);
 
     @GET("/api/users/{userId}")
-    public Observable<User> getUser(@Path("userId") String userId);
+    public Call<User> getUser(@Path("userId") String userId);
 
     @POST("/api/gcm/register/{regId}")
-    public void registerGcmClient(@Path("regId") String registrationId, Callback<String> callback);
+    public Call<Response> registerGcmClient(@Path("regId") String registrationId);
 
 }

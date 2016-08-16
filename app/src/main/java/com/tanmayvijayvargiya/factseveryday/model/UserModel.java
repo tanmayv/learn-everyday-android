@@ -30,4 +30,11 @@ public class UserModel {
     public User getLoggedInUser(){
         return new Select().from(User.class).querySingle();
     }
+
+    public void logoutCurrentUser(){
+        List<User> users = new Select().from(User.class).queryList();
+        for(User user1 : users){
+            user1.delete();
+        }
+    }
 }

@@ -8,7 +8,9 @@ import com.path.android.jobqueue.JobManager;
 import com.path.android.jobqueue.config.Configuration;
 import com.path.android.jobqueue.di.DependencyInjector;
 import com.tanmayvijayvargiya.factseveryday.LearnEverydayApplication;
+import com.tanmayvijayvargiya.factseveryday.controller.HomeController;
 import com.tanmayvijayvargiya.factseveryday.job.BaseJob;
+import com.tanmayvijayvargiya.factseveryday.model.FactModel;
 import com.tanmayvijayvargiya.factseveryday.model.UserModel;
 
 import javax.inject.Singleton;
@@ -69,5 +71,16 @@ public class AppModule {
     @Singleton
     public UserModel provideUserModel(){
         return  new UserModel(mApp.getAppComponent());
+    }
+    @Provides
+    @Singleton
+    public FactModel provideFactModel(){
+        return  new FactModel(mApp.getAppComponent());
+    }
+
+    @Provides
+    @Singleton
+    public HomeController provideHomeController(){
+        return new HomeController(mApp.getAppComponent());
     }
 }

@@ -19,6 +19,7 @@ package com.tanmayvijayvargiya.factseveryday.di.component;
 
 import com.tanmayvijayvargiya.factseveryday.di.ActivityScope;
 import com.tanmayvijayvargiya.factseveryday.views.ActivityHome;
+import com.tanmayvijayvargiya.factseveryday.views.LoginActivity;
 
 import dagger.Component;
 
@@ -26,4 +27,5 @@ import dagger.Component;
 @Component(dependencies = AppComponent.class)
 public interface ActivityComponent extends AppComponent {
     void inject(ActivityHome activityHome);
+    void inject(LoginActivity loginActivity);
 }
