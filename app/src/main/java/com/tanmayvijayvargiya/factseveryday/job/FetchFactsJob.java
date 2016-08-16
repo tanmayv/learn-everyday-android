@@ -52,15 +52,16 @@ public class FetchFactsJob extends BaseJob{
         Log.d("Job","FetchFacts Job Running Now.");
         List<Fact> facts = apiService.getFacts().execute().body();
         User user = mUserModel.getLoggedInUser();
+        Log.d("Job","FetchFacts Job Running Now." + user.getFavFacts().toString());
+
         if(user != null){
             List<String> favs = user.getFavFacts();
-            for(String fav : favs){
-                Log.d("Feed","Fav of user " + fav);
-            }
+
             if(favs != null && facts != null) {
                 for(Fact fact: facts){
                     if(favs.contains(fact.get_id())){
                         fact.isFavorite = true;
+                        Log.d("Feed","Fav of user " + fact.getTitle());
                     }
                 }
             }

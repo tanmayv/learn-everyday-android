@@ -116,7 +116,7 @@ public class User extends BaseModel implements Validate{
     public void setFavFacts(List<String> favFacts) {
         Log.d("User","User favFacts setter running");
         this.favFacts = favFacts;
-        //this.dbFavFactsList = StringUtil.listToString(favFacts,null);
+        this.dbFavFactsList = StringUtil.listToString(favFacts,null);
     }
 
     public Name getName() {

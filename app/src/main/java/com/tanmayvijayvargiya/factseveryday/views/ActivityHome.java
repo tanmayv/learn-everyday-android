@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +45,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ActivityHome extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, ListOfFactsFragment.OnFragmentInteractionListener{
@@ -55,7 +55,7 @@ public class ActivityHome extends BaseActivity
     private ListOfFactsFragment discoverFragment;
     private ListOfFactsFragment favFragment;
     TextView loggedUserName, loggedUserEmail;
-    ImageView loggedProfilePic;
+    CircleImageView loggedProfilePic;
     private final int LOADER_ID = 9000;
     User mUser;
 
@@ -121,7 +121,7 @@ public class ActivityHome extends BaseActivity
 
         loggedUserEmail = (TextView) navHeaderView.findViewById(R.id.logged_user_email);
         loggedUserName = (TextView) navHeaderView.findViewById(R.id.logged_user_name);
-        loggedProfilePic = (ImageView) navHeaderView.findViewById(R.id.logged_user_profile);
+        loggedProfilePic = (CircleImageView) navHeaderView.findViewById(R.id.logged_user_profile);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -333,5 +333,11 @@ public class ActivityHome extends BaseActivity
     @Override
     public void navigateToFactViewActivity(Fact fact) {
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStart();
+        mEventBus.unregister(this);
     }
 }

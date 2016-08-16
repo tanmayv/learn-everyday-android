@@ -55,9 +55,10 @@ public class FetchUserJob extends BaseJob {
         user.set_id(null);
         String username = user.getName().fullName();
         user= apiService.createUser(user).execute().body();
-        Log.d("User",user.getFavFacts().toString());
+        user.setFavFacts(user.getFavFacts());
         user.setFullName(username,"");
         userModel.setLoggedInUser(user);
+        Log.d("User", "Firing Event");
         eventBus.post(new UserSyncedEvent(user));
     }
 

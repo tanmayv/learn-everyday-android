@@ -49,7 +49,6 @@ public class LoginActivity extends BaseActivity implements GoogleApiClient.OnCon
         setContentView(R.layout.activity_login);
         getComponent().inject(this);
         mEventBus.register(this);
-
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestProfile()
@@ -148,5 +147,12 @@ public class LoginActivity extends BaseActivity implements GoogleApiClient.OnCon
 
         finish();
         startActivity(new Intent(getApplicationContext(), ActivityHome.class));
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d("User","Un Registering");
+        super.onStop();
+        mEventBus.unregister(this);
     }
 }
